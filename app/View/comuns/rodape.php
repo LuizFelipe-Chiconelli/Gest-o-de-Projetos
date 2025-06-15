@@ -1,6 +1,6 @@
         </main>
         <footer class="container-fluid mt-5">
-            AtomPHP, FASM 2025 - Disciplina de Framewokrs I'
+            Gerenciador de Projetos, FASM 2025 - Disciplina de Frameworkrs
         </footer>
     </body>
 </html>

@@ -56,6 +56,7 @@ class Usuario extends ControllerMain
             return Redirect::page('usuario/form/insert/0');
         }
 
+        unset($post['action']);
         unset($post['confSenha']);                       // tira confirmação
         $post['senha'] = password_hash($post['senha'],PASSWORD_DEFAULT);
 
@@ -69,6 +70,7 @@ class Usuario extends ControllerMain
     public function update()
     {
         $post = $this->request->getPost();
+        unset($post['action']);
         unset($post['confSenha']);
 
         // só muda senha se veio algo

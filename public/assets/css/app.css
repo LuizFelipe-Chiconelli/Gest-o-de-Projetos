@@ -1,0 +1,8 @@
+/* caixa rolável dos alunos */
+.lista-alunos{
+    min-height: 80px;    /* mostra a borda mesmo vazia        */
+    max-height:120px;    /* rola quando exceder esta altura   */
+    overflow-y:auto;
+}
+.lista-alunos .form-check{ margin-bottom:.25rem; }
+

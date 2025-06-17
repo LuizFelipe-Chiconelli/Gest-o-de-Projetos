@@ -3,102 +3,103 @@ namespace App\Controller;
 
 use Core\Library\ControllerMain;
 use Core\Library\Redirect;
-use Core\Library\Files;   // upload
-use Core\Library\Session;
+use Core\Library\Files;      // upload helper
 
 class Entrega extends ControllerMain
 {
-    private $files;
+    private Files $files;     // gerencia uploads
 
     public function __construct()
     {
-        parent::__construct();            // carrega model + helpers padrão
-        $this->validaNivelAcesso();       // bloqueia quem tem nível >20 (21 é ok)
-
+        parent::__construct();
+        $this->validaNivelAcesso();      // nível 1-20
         $this->loadHelper('formHelper');
-        $this->files = new Files();  // usa pasta uploads/entrega por padrão
+        $this->files = new Files();      // usa “uploads/” como base
     }
 
-    /* LISTA ------------------------------------------------------------ */
+    /* LISTA ---------------------------------------------------------- */
     public function index()
     {
-        $dados = $this->model->lista('data','DESC');
+         // monta a consulta já com o título do projeto
+        $dados = $this->model->db
+              ->select('entrega.*, projeto.titulo AS projeto')
+              ->join  ('projeto', 'projeto.id = entrega.projeto_id')
+              ->orderBy('data', 'DESC')
+              ->findAll();
+
+        //renderiza a view
         return $this->loadView('sistema/listaEntrega', $dados);
+        
+        
     }
 
-    /* FORM ------------------------------------------------------------- */
+    /* FORM ----------------------------------------------------------- */
     public function form($action,$id)
     {
         $dados = ['data'=>$this->model->getById($id)];
         return $this->loadView('sistema/formEntrega', $dados);
     }
 
-    /* INSERT ----------------------------------------------------------- */
+    /* INSERT --------------------------------------------------------- */
     public function insert()
     {
         $post = $this->request->getPost();
 
-        // remove nomeArquivo caso venha vazio
-        unset($post['nomeArquivo']);
-
-        // faz upload se o usuário selecionou arquivo
+        /* upload (opcional) */
         if (!empty($_FILES['arquivo']['name'])) {
-            $nome = $this->files->upload($_FILES, 'entrega');  // pasta uploads/entrega
-            if (!$nome) {      // se deu erro no upload
-                return Redirect::page('Entrega/form/insert/0');
+            $nome = $this->files->upload($_FILES,'entrega');
+            if (!$nome) {
+                return Redirect::page('entrega/form/insert/0');   // mensagem já no helper
             }
-            $post['arquivo'] = $nome[0];     // salva nome do arquivo no banco
+            $post['arquivo'] = $nome[0];
         }
 
-        /* 3. grava no banco */
         $ok = $this->model->insert($post);
-        
-        /* 4. redireciona */
+
         return Redirect::page(
-            $ok ? 'Entrega' : 'Entrega/form/insert/0',
+            $ok ? 'entrega' : 'entrega/form/insert/0',
             $ok ? ['msgSucesso'=>'Inserido com sucesso.'] : []
         );
     }
 
-    /* UPDATE ----------------------------------------------------------- */
+    /* UPDATE --------------------------------------------------------- */
     public function update()
     {
         $post = $this->request->getPost();
 
+        /* se usuário escolheu novo arquivo, faz upload e substitui */
         if (!empty($_FILES['arquivo']['name'])) {
-            // novo arquivo → faz upload
-            $nome = $this->files->upload($_FILES, 'entrega');
+            $nome = $this->files->upload($_FILES,'entrega');
             if (!$nome) {
-                return Redirect::page('Entrega/form/update/'.$post['id']);
+                return Redirect::page('entrega/form/update/'.$post['id']);
             }
             $post['arquivo'] = $nome[0];
         } else {
-            // manteve o arquivo antigo
-            $post['arquivo'] = $post['nomeArquivo'];
+            $post['arquivo'] = $post['nomeArquivo'];   // mantém o antigo
         }
 
-        unset($post['nomeArquivo']);  // remove campo auxiliar
+        unset($post['nomeArquivo']);
 
         $ok = $this->model->update($post);
 
         return Redirect::page(
-            $ok ? 'Entrega' : 'Entrega/form/update/'.$post['id'],
+            $ok ? 'entrega' : 'entrega/form/update/'.$post['id'],
             $ok ? ['msgSucesso'=>'Alterado com sucesso.'] : []
         );
     }
 
-    /* DELETE ----------------------------------------------------------- */
+    /* DELETE --------------------------------------------------------- */
     public function delete()
     {
         $post = $this->request->getPost();
         $ok   = $this->model->delete($post);
 
-        // se excluiu e havia arquivo, remove da pasta
-        if ($ok && $post['nomeArquivo']) {
-            $this->files->delete($post['nomeArquivo'], 'entrega');
+        /* se excluiu registro e havia arquivo, remove-o da pasta */
+        if ($ok && !empty($post['nomeArquivo'])) {
+            $this->files->delete($post['nomeArquivo'],'entrega');
         }
 
-        return Redirect::page('Entrega',
+        return Redirect::page('entrega',
             $ok ? ['msgSucesso'=>'Excluído.'] : []);
     }
 }

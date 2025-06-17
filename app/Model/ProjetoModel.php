@@ -3,35 +3,26 @@ namespace App\Model;
 
 use Core\Library\ModelMain;
 
-/**
- * Model da tabela PROJETO
- * • Herdamos tudo de ModelMain (conexão, insert, update, delete, validação)
- */
 class ProjetoModel extends ModelMain
 {
-    // Nome exato da tabela no MySQL
     protected $table = 'projeto';
 
-    // Regras de validação (o Validator do core usa isso antes de gravar)
+    /* regras de validação – mesma assinatura do ModelMain */
     public $validationRules = [
-        'titulo' => [
-            'label' => 'Título',
-            'rules' => 'required|min:5|max:100'
-        ],
-        'area' => [
-            'label' => 'Área',
-            'rules' => 'required|min:3|max:50'
-        ],
-        'status' => [
-            'label' => 'Status',
-            'rules' => 'required|min:3|max:20'
-        ],
-        
-        'professor_id' => [
-        'label' => 'Professor',
-        'rules' => 'required|int'
-],
-
-        // ADICIONAR OUTRAS ...(A FAZER)
+        'titulo'       => ['label'=>'Título',    'rules'=>'required|min:5|max:100'],
+        'area'         => ['label'=>'Área',      'rules'=>'required|min:3|max:50'],
+        'status'       => ['label'=>'Status',    'rules'=>'required|min:3|max:20'],
+        'professor_id' => ['label'=>'Professor', 'rules'=>'required|int'],
+        /* campos opcionais: inicio, previsao_termino, resumo */
     ];
+
+    /** lista projetos + nome do professor (JOIN) */
+    public function listaProjeto(): array
+    {
+        return $this->db
+            ->select('projeto.*, professor.nome AS professor')
+            ->join('professor','professor.id = projeto.professor_id')
+            ->orderBy('titulo')
+            ->findAll();
+    }
 }

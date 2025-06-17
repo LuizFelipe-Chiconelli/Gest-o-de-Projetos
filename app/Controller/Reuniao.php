@@ -1,78 +1,73 @@
 <?php
-/*
- |--------------------------------------------------------------
- |  Controller Reuniao
- |  Rotas automáticas
- |   /Reuniao                       → index()
- |   /Reuniao/form/insert/0         → form('insert',0)
- |   /Reuniao/insert                → insert()
- |   /Reuniao/update                → update()
- |   /Reuniao/delete                → delete()
- |--------------------------------------------------------------
-*/
 namespace App\Controller;
 
-use Core\Library\ControllerMain; // classe base
+use Core\Library\ControllerMain;
 use Core\Library\Redirect;
 
 class Reuniao extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct();            // carrega model + helpers padrão
-        $this->validaNivelAcesso();       // bloqueia quem tem nível >20 (21 é ok)
-
-        /* se quiser restringir mais:  */
-        // $this->validaNivelAcesso(11); // só super-admin e admin
+        parent::__construct();           // login verificado + model carregado
+        $this->validaNivelAcesso();      // bloqueia nível >20
         $this->loadHelper('formHelper');
     }
 
-    /** Lista todas as reuniões ------------- */
+    /* LISTA ---------------------------------------------------------- */
     public function index()
     {
-        // busca ordenado por data (mais recente primeiro)
-        $dados = $this->model->lista('data','DESC');
+        $dados = $this->model->db
+              ->select('reuniao.*, projeto.titulo AS projeto')
+              ->join('projeto','projeto.id = reuniao.projeto_id')
+              ->orderBy('data','DESC')
+              ->findAll();
+
         return $this->loadView('sistema/listaReuniao', $dados);
     }
 
-    /** Formulário (novo / editar / excluir) */
-    public function form($action, $id)
+    /* FORM ----------------------------------------------------------- */
+    public function form(?string $action = null, ?int $id = null)
     {
-        // $id == 0 → cadastro novo; senão, busca registro para edição
-        $dados = ['data' => $this->model->getById($id)];
+        $ProjetoModel = $this->loadModel('Projeto');
+
+        $dados = [
+            'data'         => $this->model->getById($id),
+            'listaProjeto' => $ProjetoModel->lista('titulo')
+        ];
+
         return $this->loadView('sistema/formReuniao', $dados);
     }
 
-    /** Gravar novo registro ---------------- */
+    /* INSERT --------------------------------------------------------- */
     public function insert()
     {
         $ok = $this->model->insert($this->request->getPost());
 
-        // se ok ⇒ volta para lista; senão ⇒ volta para o form
         return Redirect::page(
-            $ok ? 'Reuniao' : 'Reuniao/form/insert/0',
-            $ok ? ['msgSucesso' => 'Inserido com sucesso.'] : []
+            $ok ? 'reuniao' : 'reuniao/form/insert/0',
+            $ok ? ['msgSucesso'=>'Inserida com sucesso.'] : []
         );
     }
 
-    /** Atualizar registro existente -------- */
+    /* UPDATE --------------------------------------------------------- */
     public function update()
     {
         $post = $this->request->getPost();
         $ok   = $this->model->update($post);
 
         return Redirect::page(
-            $ok ? 'Reuniao' : 'Reuniao/form/update/'.$post['id'],
-            $ok ? ['msgSucesso' => 'Alterado com sucesso.'] : []
+            $ok ? 'reuniao' : "reuniao/form/update/{$post['id']}",
+            $ok ? ['msgSucesso'=>'Alterada com sucesso.'] : []
         );
     }
 
-    /** Excluir registro -------------------- */
+    /* DELETE --------------------------------------------------------- */
     public function delete()
     {
         $ok = $this->model->delete($this->request->getPost());
 
-        return Redirect::page('Reuniao',
-            $ok ? ['msgSucesso' => 'Excluído.'] : []);
+        return Redirect::page('reuniao',
+            $ok ? ['msgSucesso'=>'Excluída.'] : ['msgError'=>'Falha ao excluir.']
+        );
     }
 }

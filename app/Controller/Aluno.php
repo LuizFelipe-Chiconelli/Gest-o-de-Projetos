@@ -8,55 +8,54 @@ class Aluno extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct();            // carrega model + helpers padrão
-        $this->validaNivelAcesso();       // bloqueia quem tem nível >20 (21 é ok)
-
-        // $this->validaNivelAcesso(11); // só super-admin e admin
+        parent::__construct();
+        $this->validaNivelAcesso();   // nível 1-20
         $this->loadHelper('formHelper');
     }
 
-    /** Lista */
+    /* LISTA ---------------------------------------------------------- */
     public function index()
     {
-        return $this->loadView(
-            'sistema/listaAluno',
-            $this->model->lista('nome')
-        );
+        $dados = $this->model->lista('nome');
+        return $this->loadView('sistema/listaAluno', $dados);
     }
 
-    /** Formulário */
+    /* FORM ----------------------------------------------------------- */
     public function form($action, $id)
     {
         $dados = ['data' => $this->model->getById($id)];
         return $this->loadView('sistema/formAluno', $dados);
     }
 
-    /** Inserir */
+    /* INSERT --------------------------------------------------------- */
     public function insert()
     {
         $ok = $this->model->insert($this->request->getPost());
+
         return Redirect::page(
-            $ok ? 'Aluno' : 'Aluno/form/insert/0',
-            $ok ? ['msgSucesso' => 'Inserido com sucesso.'] : []
+            $ok ? 'aluno' : 'aluno/form/insert/0',
+            $ok ? ['msgSucesso'=>'Inserido com sucesso.'] : []
         );
     }
 
-    /** Atualizar */
+    /* UPDATE --------------------------------------------------------- */
     public function update()
     {
         $post = $this->request->getPost();
         $ok   = $this->model->update($post);
 
         return Redirect::page(
-            $ok ? 'Aluno' : 'Aluno/form/update/'.$post['id'],
-            $ok ? ['msgSucesso' => 'Alterado com sucesso.'] : []
+            $ok ? 'aluno' : "aluno/form/update/{$post['id']}",
+            $ok ? ['msgSucesso'=>'Alterado com sucesso.'] : []
         );
     }
 
-    /** Excluir */
+    /* DELETE --------------------------------------------------------- */
     public function delete()
     {
         $ok = $this->model->delete($this->request->getPost());
-        return Redirect::page('Aluno', $ok ? ['msgSucesso'=>'Excluído.'] : []);
+
+        return Redirect::page('aluno',
+            $ok ? ['msgSucesso'=>'Excluído.'] : []);
     }
 }

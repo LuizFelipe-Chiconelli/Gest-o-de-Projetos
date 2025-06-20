@@ -7,22 +7,23 @@ class ProjetoModel extends ModelMain
 {
     protected $table = 'projeto';
 
-    /* regras de validação – mesma assinatura do ModelMain */
+    /** Validação */
     public $validationRules = [
         'titulo'       => ['label'=>'Título',    'rules'=>'required|min:5|max:100'],
         'area'         => ['label'=>'Área',      'rules'=>'required|min:3|max:50'],
         'status'       => ['label'=>'Status',    'rules'=>'required|min:3|max:20'],
         'professor_id' => ['label'=>'Professor', 'rules'=>'required|int'],
-        /* campos opcionais: inicio, previsao_termino, resumo */
+        // removido: 'statusRegistro'
     ];
 
-    /** lista projetos + nome do professor (JOIN) */
+    /** Lista projetos + nome do professor */
     public function listaProjeto(): array
     {
         return $this->db
-            ->select('projeto.*, professor.nome AS professor')
-            ->join('professor','professor.id = projeto.professor_id')
-            ->orderBy('titulo')
+            ->table('projeto p')
+            ->select('p.*, pr.nome AS professor')
+            ->join('professor pr', 'pr.id = p.professor_id', 'LEFT')
+            ->orderBy('p.titulo')
             ->findAll();
     }
 }

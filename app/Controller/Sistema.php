@@ -2,23 +2,48 @@
 namespace App\Controller;
 
 use Core\Library\ControllerMain;
+use Core\Library\Session;
+use Core\Library\Redirect;
 
 class Sistema extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct();     // exige login (já está no ControllerMain)
+        // ControllerMain já valida login
+        parent::__construct();
     }
 
-    /** tela inicial pós-login */
-    public function index()
-    {
-        // qualquer dado que queira mandar p/ a view vai aqui:
-        $dados = [
-            'nome'   => \Core\Library\Session::get('userNome'),
-            'nivel'  => (int)\Core\Library\Session::get('userNivel')
-        ];
+    /** Dashboard que decide para onde levar o usuário */
+    /** dashboard pós-login */
+public function index()
+{
+    $nivel = (int) Session::get('userNivel');
 
-        return $this->loadView('sistema/home', $dados);
+    /* ───────── ADMIN / PROFESSOR ───────── */
+    if ($nivel <= 21) {
+        return $this->loadView('sistema/home', [
+            'nome'  => Session::get('userNome'),
+            'nivel' => $nivel
+        ]);
     }
+
+    /* ───────── ALUNO ───────── */
+    if ($nivel === 31) {
+
+        $projetos = $this->loadModel('ProjetoAluno')
+                         ->listarProjetosDoAluno(Session::get('userId'));
+
+        $reunioes = $this->loadModel('ReuniaoAluno')
+                         ->listarReunioesDoAluno(Session::get('userId'));
+
+        return $this->loadView('sistema/alunoHome', [
+            'projetos' => $projetos,   // ← lista de projetos
+            'reunioes' => $reunioes    // ← lista de reuniões (talvez vazia)
+        ]);
+    }
+
+    /* ───────── Nível inesperado ───────── */
+    return Redirect::page('login/signOut');
+}
+
 }

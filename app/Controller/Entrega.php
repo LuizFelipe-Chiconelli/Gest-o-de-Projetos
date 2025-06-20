@@ -1,105 +1,115 @@
 <?php
+/*--------------------------------------------------------------
+ | Controller Entrega — CRUD (admin / prof / aluno)
+ *-------------------------------------------------------------*/
 namespace App\Controller;
 
 use Core\Library\ControllerMain;
 use Core\Library\Redirect;
-use Core\Library\Files;      // upload helper
+use Core\Library\Session;
 
 class Entrega extends ControllerMain
 {
-    private Files $files;     // gerencia uploads
-
     public function __construct()
     {
-        parent::__construct();
-        $this->validaNivelAcesso();      // nível 1-20
+        parent::__construct();          // exige login
+        $this->validaNivelAcesso(31);   // libera níveis ≤31
         $this->loadHelper('formHelper');
-        $this->files = new Files();      // usa “uploads/” como base
     }
 
-    /* LISTA ---------------------------------------------------------- */
+    /* ============ LISTA ==================================== */
     public function index()
     {
-         // monta a consulta já com o título do projeto
-        $dados = $this->model->db
-              ->select('entrega.*, projeto.titulo AS projeto')
-              ->join  ('projeto', 'projeto.id = entrega.projeto_id')
-              ->orderBy('data', 'DESC')
-              ->findAll();
+        /* monta a consulta */
+        $b = $this->model->db
+             ->select(
+                 // alias “entrega_id” evita conflito de nomes na view
+                 'e.id        AS entrega_id,
+                  e.*,
+                  p.titulo    AS projeto'
+             )
+             ->table('entrega e')
+             ->join('projeto p', 'p.id = e.projeto_id');
 
-        //renderiza a view
-        return $this->loadView('sistema/listaEntrega', $dados);
-        
-        
+        /* aluno vê somente as SUAS entregas ------------------ */
+        if ((int) Session::get('userNivel') === 31) {
+            $b->join('projeto_aluno pa','pa.projeto_id = e.projeto_id')
+              ->where('pa.aluno_id', Session::get('userId'));
+        }
+
+        $entregas = $b->orderBy('e.data','DESC')->findAll();
+
+        return $this->loadView('sistema/listaEntrega', $entregas);
     }
 
-    /* FORM ----------------------------------------------------------- */
+    /* ============ FORM ===================================== */
     public function form($action,$id)
     {
-        $dados = ['data'=>$this->model->getById($id)];
-        return $this->loadView('sistema/formEntrega', $dados);
+        return $this->loadView('sistema/formEntrega', [
+            'data' => $this->model->getById($id)
+        ]);
     }
 
-    /* INSERT --------------------------------------------------------- */
+    /* ========================================================
+       INSERIR / ATUALIZAR
+       -------------------------------------------------------- */
+    private function espelhaStatusProjeto(array $post): void
+    {
+        /* altera o status do projeto se a entrega foi concluída */
+        if (in_array($post['status'], ['Entregue','Finalizado'])) {
+            $novo = $post['status'] === 'Finalizado' ? 'Concluído' : 'Entregue';
+
+            $this->model->db
+                 ->table('projeto')
+                 ->where('id', $post['projeto_id'])
+                 ->update(['status' => $novo]);
+        }
+    }
+
     public function insert()
     {
-        $post = $this->request->getPost();
-
-        /* upload (opcional) */
-        if (!empty($_FILES['arquivo']['name'])) {
-            $nome = $this->files->upload($_FILES,'entrega');
-            if (!$nome) {
-                return Redirect::page('entrega/form/insert/0');   // mensagem já no helper
-            }
-            $post['arquivo'] = $nome[0];
-        }
+        $post            = $this->request->getPost();
+        $post['arquivo'] = null;                 // upload ficará para depois
 
         $ok = $this->model->insert($post);
+        if ($ok) $this->espelhaStatusProjeto($post);
+
+        /* aluno volta ao dashboard, professor/admin à lista */
+        $rota = (int) Session::get('userNivel') === 31 ? 'sistema' : 'entrega';
 
         return Redirect::page(
-            $ok ? 'entrega' : 'entrega/form/insert/0',
-            $ok ? ['msgSucesso'=>'Inserido com sucesso.'] : []
+            $rota,
+            $ok ? ['msgSucesso' => 'Entrega registrada.']
+                : ['msgError'   => 'Falha ao registrar entrega.']
         );
     }
 
-    /* UPDATE --------------------------------------------------------- */
     public function update()
     {
-        $post = $this->request->getPost();
-
-        /* se usuário escolheu novo arquivo, faz upload e substitui */
-        if (!empty($_FILES['arquivo']['name'])) {
-            $nome = $this->files->upload($_FILES,'entrega');
-            if (!$nome) {
-                return Redirect::page('entrega/form/update/'.$post['id']);
-            }
-            $post['arquivo'] = $nome[0];
-        } else {
-            $post['arquivo'] = $post['nomeArquivo'];   // mantém o antigo
-        }
-
-        unset($post['nomeArquivo']);
+        $post            = $this->request->getPost();
+        $post['arquivo'] = null;
 
         $ok = $this->model->update($post);
+        if ($ok) $this->espelhaStatusProjeto($post);
+
+        $rota = (int) Session::get('userNivel') === 31 ? 'sistema' : 'entrega';
 
         return Redirect::page(
-            $ok ? 'entrega' : 'entrega/form/update/'.$post['id'],
-            $ok ? ['msgSucesso'=>'Alterado com sucesso.'] : []
+            $rota,
+            $ok ? ['msgSucesso' => 'Entrega atualizada.']
+                : ['msgError'   => 'Falha ao atualizar entrega.']
         );
     }
 
-    /* DELETE --------------------------------------------------------- */
+    /* ============ DELETE =================================== */
     public function delete()
     {
-        $post = $this->request->getPost();
-        $ok   = $this->model->delete($post);
+        $ok = $this->model->delete($this->request->getPost());
 
-        /* se excluiu registro e havia arquivo, remove-o da pasta */
-        if ($ok && !empty($post['nomeArquivo'])) {
-            $this->files->delete($post['nomeArquivo'],'entrega');
-        }
-
-        return Redirect::page('entrega',
-            $ok ? ['msgSucesso'=>'Excluído.'] : []);
+        return Redirect::page(
+            'entrega',
+            $ok ? ['msgSucesso' => 'Entrega excluída.']
+                : ['msgError'   => 'Falha ao excluir entrega.']
+        );
     }
 }

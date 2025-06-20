@@ -7,12 +7,12 @@ function formTitulo($titulo, $btnNovo = false)
     $request = new Request();
 
     if ($btnNovo) {
-        $cHtmlBtn = '<a href="' . baseUrl() . $request->getController() . '/form/insert/0" title="Novo" class="btn btn-outline-info text-white">Novo</a>';
+        $cHtmlBtn = '<a href="' . baseUrl() . $request->getController() . '/form/insert/0" title="Novo" class="btn btn-outline-light text-black">Novo</a>';
     } else {
         $cHtmlBtn = '<a href="' . baseUrl() . $request->getController() . '" title="Voltar" class="btn btn-outline-info text-white">Voltar</a>';
     }
 
-    $cHtml = '  <div class="row bg-primary text-white m-2">
+    $cHtml = '  <div class="row bg-secondary text-white m-2">
                     <div class="col-10 p-2">
                         <h3>' . $titulo . formSubTitulo($request->getAction()) . '</h3>
                     </div>

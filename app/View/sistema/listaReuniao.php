@@ -1,43 +1,36 @@
-<?= formTitulo('Reuniões', true) ?>
-
-<table id="tblReuniao" class="table table-striped table-hover">
-  <thead class="table-primary">
-    <tr>
-      <th>#</th>
-      <th>Projeto</th>
-      <th>Data</th>
-      <th>Hora</th>
-      <th>Local</th>
-      <th>Pauta</th>
-      <th class="text-center">Ações</th>
-    </tr>
-  </thead>
-
-  <tbody>
-  <?php foreach ($dados as $r): ?>
-    <tr>
-      <td><?= $r['id'] ?></td>
-      <td><?= $r['projeto'] ?></td>
-      <td><?= date('d/m/Y', strtotime($r['data'])) ?></td>
-      <td><?= $r['hora'] ?></td>
-      <td><?= $r['local'] ?></td>
-      <td><?= $r['pauta'] ?></td>
-
-      <td class="text-nowrap text-center">
-        <a href="<?= baseUrl()?>reuniao/form/update/<?= $r['id'] ?>"
-           class="btn btn-sm btn-warning">Editar</a>
-        <a href="<?= baseUrl()?>reuniao/form/delete/<?= $r['id'] ?>"
-           class="btn btn-sm btn-danger">Excluir</a>
-      </td>
-    </tr>
-  <?php endforeach; ?>
-  </tbody>
-</table>
-
-<script>
-$(function(){
-  $('#tblReuniao').DataTable({
-    language:{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}
-  });
-});
-</script>
+<div class="border rounded shadow-sm mb-4 mt-5">
+  <div class="p-3 border-bottom bg-light">
+    <?= formTitulo('Reuniões', true) ?>
+  </div>
+  <div class="p-3 table-responsive">
+    <table id="tblReunioes" class="table table-striped table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Projeto</th>
+          <th>Data</th>
+          <th>Hora</th>
+          <th>Local</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach($dados as $row): ?>
+        <tr>
+          <td><?= $row['id'] ?></td>
+          <td><?= $row['projeto'] ?></td>
+          <td><?= date('d/m/Y',strtotime($row['data'])) ?></td>
+          <td><?= date('H:i',strtotime($row['hora'])) ?></td>
+          <td><?= $row['local'] ?></td>
+          <td class="text-center">
+            <a href="<?= baseUrl() ?>reuniao/form/update/<?= $row['id'] ?>"
+               class="btn btn-sm btn-warning me-2">Editar</a>
+            <a href="<?= baseUrl() ?>reuniao/form/delete/<?= $row['id'] ?>"
+               class="btn btn-sm btn-danger">Excluir</a>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>

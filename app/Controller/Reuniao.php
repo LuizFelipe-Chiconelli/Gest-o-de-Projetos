@@ -1,73 +1,96 @@
 <?php
+/*--------------------------------------------------------------
+ | Controller Reunião — CRUD
+ *-------------------------------------------------------------*/
 namespace App\Controller;
 
 use Core\Library\ControllerMain;
 use Core\Library\Redirect;
+use Core\Library\Session;
 
 class Reuniao extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct();           // login verificado + model carregado
-        $this->validaNivelAcesso();      // bloqueia nível >20
+        parent::__construct();
+
+        /*  Admin 1-11 → total
+         *  Professor 12-21 → reuniões dos seus projetos
+         *  Aluno não entra                                  */
+        $this->validaNivelAcesso(21);               // ← novo
+
         $this->loadHelper('formHelper');
     }
 
-    /* LISTA ---------------------------------------------------------- */
+    /* ============ LISTA ===================================== */
     public function index()
     {
-        $dados = $this->model->db
-              ->select('reuniao.*, projeto.titulo AS projeto')
-              ->join('projeto','projeto.id = reuniao.projeto_id')
-              ->orderBy('data','DESC')
-              ->findAll();
+        $builder = $this->model->db
+                   ->select('r.*, p.titulo AS projeto')
+                   ->table('reuniao r')
+                   ->join('projeto p','p.id = r.projeto_id');
 
+        /* professor vê só seus projetos ---------------------- */
+        if ((int) Session::get('userNivel') > 11) {            // ← novo
+            $builder->where('p.professor_id', Session::get('userId'));
+        }
+
+        $dados = $builder->orderBy('r.data','DESC')->findAll();
         return $this->loadView('sistema/listaReuniao', $dados);
     }
 
-    /* FORM ----------------------------------------------------------- */
-    public function form(?string $action = null, ?int $id = null)
+    /* ============ FORM ====================================== */
+    public function form($action,$id)
     {
-        $ProjetoModel = $this->loadModel('Projeto');
+        $registro = $this->model->getById($id) ?? [];
+        $profFix  = null;
 
-        $dados = [
-            'data'         => $this->model->getById($id),
-            'listaProjeto' => $ProjetoModel->lista('titulo')
-        ];
+        /* se professor logado, vamos travar o combo projeto --- */
+        if ((int) Session::get('userNivel') > 11) {            // ← novo
+            $profFix = Session::get('userId');
+        }
 
-        return $this->loadView('sistema/formReuniao', $dados);
+        return $this->loadView('sistema/formReuniao',[
+            'data'       => $registro,
+            'profFix'    => $profFix                     // ← novo
+        ]);
     }
 
-    /* INSERT --------------------------------------------------------- */
+    /* ============ INSERT ==================================== */
     public function insert()
     {
-        $ok = $this->model->insert($this->request->getPost());
+        $post = $this->request->getPost();
+        $ok   = $this->model->insert($post);
 
         return Redirect::page(
-            $ok ? 'reuniao' : 'reuniao/form/insert/0',
-            $ok ? ['msgSucesso'=>'Inserida com sucesso.'] : []
+            'reuniao',
+            $ok ? ['msgSucesso'=>'Reunião registrada.']
+                : ['msgError'  =>'Falha ao registrar reunião.']
         );
     }
 
-    /* UPDATE --------------------------------------------------------- */
+    /* ============ UPDATE ==================================== */
     public function update()
     {
         $post = $this->request->getPost();
         $ok   = $this->model->update($post);
 
         return Redirect::page(
-            $ok ? 'reuniao' : "reuniao/form/update/{$post['id']}",
-            $ok ? ['msgSucesso'=>'Alterada com sucesso.'] : []
+            'reuniao',
+            $ok ? ['msgSucesso'=>'Reunião atualizada.']
+                : ['msgError'  =>'Falha ao atualizar reunião.']
         );
     }
 
-    /* DELETE --------------------------------------------------------- */
+    /* ============ DELETE ==================================== */
     public function delete()
     {
         $ok = $this->model->delete($this->request->getPost());
 
-        return Redirect::page('reuniao',
-            $ok ? ['msgSucesso'=>'Excluída.'] : ['msgError'=>'Falha ao excluir.']
+        return Redirect::page(
+            'reuniao',
+            $ok ? ['msgSucesso'=>'Reunião excluída.']
+                : ['msgError'  =>'Falha ao excluir reunião.']
         );
     }
 }

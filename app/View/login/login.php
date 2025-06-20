@@ -1,55 +1,68 @@
 <?php
 /*-----------------------------------------------------------------
- | Tela de login
- | – Usa helpers: formTitulo(), exibeAlerta(), setValor()
- | – action → login/signIn   (método já existente)
+ | Tela de login (login.php)
  *----------------------------------------------------------------*/
 ?>
 
-<div class="card col-lg-4 mx-auto card-background">
-    <div class="card-header text-center">
-        <h3 class="m-0">Login</h3>
-    </div>
-
-    <div class="card-body">
-        <form action="<?= baseUrl()?>login/signIn" method="POST">
-
-            <!-- E-MAIL ------------------------------------------------ -->
-            <div class="mb-3">
-                <label for="email" class="form-label">E-mail</label>
-                <input  type="email"
-                        class="form-control border-dark"
-                        id="email"
-                        name="email"
-                        placeholder="informe seu e-mail"
-                        value="<?= setValor('email') ?>"
-                        required
-                        autofocus>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="card border-0 shadow-lg">
+        
+        <!-- CABEÇALHO -->
+        <div class="card-header bg-primary text-white text-center py-4">
+          <i class="fas fa-sign-in-alt fa-2x mb-2"></i>
+          <h5 class="mb-0">Entrar</h5>
+        </div>
+        
+        <!-- CORPO -->
+        <div class="card-body p-4">
+          <form action="<?= baseUrl() ?>login/signIn" method="POST">
+            
+            <div class="form-floating mb-3">
+              <input type="email"
+                     class="form-control border-primary"
+                     id="email" name="email"
+                     placeholder="E-mail"
+                     value="<?= setValor('email') ?>"
+                     required autofocus>
+              <label for="email">E-mail</label>
             </div>
-
-            <!-- SENHA ------------------------------------------------- -->
-            <div class="mb-3">
-                <label for="senha" class="form-label">Senha</label>
-                <input  type="password"
-                        class="form-control border-dark"
-                        id="senha"
-                        name="senha"
-                        required>
+            
+            <div class="form-floating mb-3">
+              <input type="password"
+                     class="form-control border-primary"
+                     id="senha" name="senha"
+                     placeholder="Senha"
+                     required>
+              <label for="senha">Senha</label>
             </div>
-
-            <!-- LINKS + ALERTAS ------------------------------------- -->
-            <div class="d-flex justify-content-between mb-2">
-                <a href="<?= baseUrl()?>login/esqueciASenha"
-                   class="text-decoration-none">Esqueci a senha</a>
-            </div>
-
+            
             <?= exibeAlerta() ?>
-
-            <!-- BOTÕES ----------------------------------------------- -->
-            <div class="d-flex justify-content-between">
-                <button class="btn btn-primary">Entrar</button>
-                <a href="<?= baseUrl()?>" class="btn btn-outline-primary">Voltar</a>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <a href="<?= baseUrl() ?>login/esqueciASenha"
+                 class="link-primary small">
+                Esqueci minha senha
+              </a>
+              <a href="<?= baseUrl() ?>login/cadastro"
+                 class="btn btn-sm btn-outline-primary">
+                Cadastre-se
+              </a>
             </div>
-        </form>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Entrar
+              </button>
+              <a href="<?= baseUrl() ?>" class="btn btn-outline-secondary btn-lg">
+                Voltar
+              </a>
+            </div>
+            
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

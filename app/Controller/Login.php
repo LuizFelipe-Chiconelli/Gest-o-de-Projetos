@@ -104,6 +104,12 @@ class Login extends ControllerMain
         return $this->loadView("login/esqueciASenha");
     }
 
+    public function cadastro()
+    {
+        return $this->loadView("login/cadastro");
+    }
+
+
     /**
      * esqueciASenhaEnvio
      *
@@ -298,9 +304,9 @@ class Login extends ControllerMain
     {
         $dados = [
             "nivel"             => 1,
-            "nome"              => "Aldecir Fonseca",
-            "email"             => "aldecir.fonseca@santamarcelina.edu.br",
-            "senha"             => password_hash("fasm@2025", PASSWORD_DEFAULT),
+            "nome"              => "SuperUser",
+            "email"             => "superuser@gmail.com",
+            "senha"             => password_hash("admin123", PASSWORD_DEFAULT),
             "statusRegistro"    => 1
         ];
 

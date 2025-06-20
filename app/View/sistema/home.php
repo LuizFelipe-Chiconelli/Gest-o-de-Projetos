@@ -10,7 +10,7 @@ $nivel = (int) Session::get('userNivel');
     <h4>Seja bem-vindo(a)</h4>
     <p>Este é o painel inicial do seu Site!.</p>
 
-    <?php if ($nivel <= 20): ?>
+    <?php if ($nivel <= 10): ?>
         <p class="text-success">✦ Você é administrador – tem acesso total.</p>
     <?php else: ?>
         <p class="text-secondary">✦ Perfil de usuário comum.</p>

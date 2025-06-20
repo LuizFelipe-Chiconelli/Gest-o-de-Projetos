@@ -1,41 +1,61 @@
 <?php
-/*  Formulário - Trocar Senha
-    – recebe id, nome, email a partir da sessão
--------------------------------------------------------------*/
+// formTrocarSenha.php
+
 use Core\Library\Session;
 $idUsuario = Session::get('userId');
 ?>
-<h2 class="mt-4">Trocar Senha</h2>
 
-<form method="POST"
-      action="<?= baseUrl()?>usuario/updateNovaSenha"
-      class="col-md-6">
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card border-0 shadow-lg">
+        <!-- HEADER -->
+        <div class="card-header bg-primary text-white text-center py-4">
+          <i class="fas fa-lock fa-2x mb-2"></i>
+          <h5 class="mb-0">Trocar Senha</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="<?= baseUrl() ?>usuario/updateNovaSenha">
+            <input type="hidden" name="id" value="<?= $idUsuario ?>">
 
-    <!-- Será usado no update -->
-    <input type="hidden" name="id" value="<?= $idUsuario ?>">
+            <div class="form-floating mb-3">
+              <input type="password" 
+                     class="form-control border-primary" 
+                     id="senhaAtual" name="senhaAtual" 
+                     placeholder="Senha Atual" required>
+              <label for="senhaAtual">Senha Atual</label>
+            </div>
 
-    <div class="mb-3">
-        <label for="senhaAtual" class="form-label">Senha atual *</label>
-        <input type="password" name="senhaAtual" id="senhaAtual"
-               class="form-control" required>
+            <div class="form-floating mb-3">
+              <input type="password" 
+                     class="form-control border-primary" 
+                     id="novaSenha" name="novaSenha" 
+                     placeholder="Nova Senha" required>
+              <label for="novaSenha">Nova Senha</label>
+            </div>
+
+            <div class="form-floating mb-4">
+              <input type="password" 
+                     class="form-control border-primary" 
+                     id="novaSenha2" name="novaSenha2" 
+                     placeholder="Confirme a Nova Senha" required>
+              <label for="novaSenha2">Confirme a Nova Senha</label>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Atualizar Senha
+              </button>
+              <a href="<?= baseUrl() ?>sistema" 
+                 class="btn btn-outline-secondary btn-lg">
+                Cancelar
+              </a>
+            </div>
+
+            <?= exibeAlerta() ?>
+          </form>
+        </div>
+      </div>
     </div>
-
-    <div class="mb-3">
-        <label for="novaSenha" class="form-label">Nova senha *</label>
-        <input type="password" name="novaSenha" id="novaSenha"
-               class="form-control" required>
-    </div>
-
-    <div class="mb-3">
-        <label for="novaSenha2" class="form-label">Confirme a nova senha *</label>
-        <input type="password" name="novaSenha2" id="novaSenha2"
-               class="form-control" required>
-    </div>
-
-    <div class="d-flex gap-2">
-        <button class="btn btn-primary">Atualizar</button>
-        <a href="<?= baseUrl()?>sistema" class="btn btn-outline-secondary">Cancelar</a>
-    </div>
-
-    <?= exibeAlerta() /* helper para mensagens */ ?>
-</form>
+  </div>
+</div>

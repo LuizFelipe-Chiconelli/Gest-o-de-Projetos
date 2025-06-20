@@ -1,8 +1,15 @@
-/* caixa rolável dos alunos */
-.lista-alunos{
-    min-height: 80px;    /* mostra a borda mesmo vazia        */
-    max-height:120px;    /* rola quando exceder esta altura   */
-    overflow-y:auto;
+/* --------------------------------------------------------
+   PALETA BÁSICA — sobrescreve apenas o “primary” do Bootstrap
+   -------------------------------------------------------- */
+:root {
+  /* cor principal */
+  --bs-primary:        #1464ff;
+  --bs-primary-rgb:    20,100,255;
+  /* cor de hover/focus */
+  --bs-primary-dark:   #0d47c9;
 }
-.lista-alunos .form-check{ margin-bottom:.25rem; }
 
+/* opcional: se ainda quiser um background customizado para um card */
+.card-background {
+  background-color: #ffffff;
+}

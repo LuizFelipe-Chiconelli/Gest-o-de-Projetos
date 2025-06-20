@@ -1,44 +1,40 @@
-<?= formTitulo('Entregas', true) ?>
-
-<table id="tblEntrega" class="table table-striped table-hover align-middle">
-  <thead class="table-primary">
-    <tr>
-      <th>#</th>
-      <th>Projeto</th>
-      <th>Data</th>
-      <th>Descrição</th>
-      <th>Arquivo</th>
-      <th>Status</th>
-      <th class="text-center">Ações</th>
-    </tr>
-  </thead>
-
-  <tbody>
-  <?php foreach ($dados as $e): ?>
-    <tr>
-      <td><?= $e['id'] ?></td>
-      <td><?= $e['projeto'] ?></td>
-      <td><?= date('d/m/Y', strtotime($e['data'])) ?></td>
-      <td><?= $e['descricao'] ?></td>
-      <td>
-        <?php if ($e['arquivo']): ?>
-          <a href="<?= baseUrl().'uploads/entrega/'.$e['arquivo'] ?>" target="_blank">Ver</a>
-        <?php endif; ?>
-      </td>
-      <td><?= $e['status'] ?></td>
-      <td class="text-nowrap text-center">
-        <a href="<?= baseUrl().'entrega/form/update/'.$e['id'] ?>" class="btn btn-sm btn-warning">Editar</a>
-        <a href="<?= baseUrl().'entrega/form/delete/'.$e['id'] ?>" class="btn btn-sm btn-danger">Excluir</a>
-      </td>
-    </tr>
-  <?php endforeach; ?>
-  </tbody>
-</table>
-
-<script>
-$(function(){
-  $('#tblEntrega').DataTable({
-    language:{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'}
-  });
-});
-</script>
+<div class="border rounded shadow-sm mb-4 mt-5">
+  <div class="p-3 border-bottom bg-light">
+    <?= formTitulo('Entregas', true) ?>
+  </div>
+  <div class="p-3 table-responsive">
+    <table id="tblEntregas" class="table table-striped table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Projeto</th>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach($dados as $row): ?>
+        <tr>
+          <td><?= $row['id'] ?></td>
+          <td><?= $row['projeto'] ?></td>
+          <td><?= date('d/m/Y',strtotime($row['data'])) ?></td>
+          <td><?= $row['descricao'] ?></td>
+          <td>
+            <span class="badge <?= $row['status']=='Entregue'?'bg-success':'bg-secondary' ?>">
+              <?= $row['status'] ?>
+            </span>
+          </td>
+          <td class="text-center">
+            <a href="<?= baseUrl() ?>entrega/form/update/<?= $row['id'] ?>"
+               class="btn btn-sm btn-warning me-2">Editar</a>
+            <a href="<?= baseUrl() ?>entrega/form/delete/<?= $row['id'] ?>"
+               class="btn btn-sm btn-danger">Excluir</a>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>

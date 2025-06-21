@@ -29,7 +29,7 @@ class Projeto extends ControllerMain
 
     $dados = $builder->orderBy('projeto.inicio','DESC')->findAll();
 
-    return $this->loadView('sistema/listaProjeto', $dados);
+    return $this->loadView('sistema/listas/listaProjeto', $dados);
     }
 
     public function form($action, $id)
@@ -39,7 +39,7 @@ class Projeto extends ControllerMain
                    ? Session::get('userId')
                    : null;
 
-        return $this->loadView('sistema/formProjeto', [
+        return $this->loadView('sistema/formularios/formProjeto', [
             'data'      => $registro,
             'profLogado'=> $profFix
         ]);

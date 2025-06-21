@@ -37,7 +37,7 @@ class Usuario extends ControllerMain
     public function index()
     {
         $dados = $this->model->lista('nome');
-        return $this->loadView('sistema/listaUsuario',$dados);
+        return $this->loadView('sistema/listas/listaUsuario',$dados);
     }
 
     /* ============ FORM ====================================== */
@@ -47,7 +47,7 @@ class Usuario extends ControllerMain
                ? ['nivel'=>21,'trocarSenha'=>'S','statusRegistro'=>1]
                : $this->model->getById($id);
 
-        return $this->loadView('sistema/formUsuario',$dados);
+        return $this->loadView('sistema/formularios/formUsuario',$dados);
     }
 
     /* ============ INSERT ==================================== */
@@ -128,7 +128,7 @@ class Usuario extends ControllerMain
     /* ============ TROCAR SENHA — form ======================= */
     public function formTrocarSenha()
     {
-        return $this->loadView('sistema/formTrocarSenha');
+        return $this->loadView('sistema/formularios/formTrocarSenha');
     }
 
     /* ============ TROCAR SENHA — grava ====================== */

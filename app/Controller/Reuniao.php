@@ -36,7 +36,7 @@ class Reuniao extends ControllerMain
         }
 
         $dados = $builder->orderBy('r.data','DESC')->findAll();
-        return $this->loadView('sistema/listaReuniao', $dados);
+        return $this->loadView('sistema/listas/listaReuniao', $dados);
     }
 
     /* ============ FORM ====================================== */
@@ -50,7 +50,7 @@ class Reuniao extends ControllerMain
             $profFix = Session::get('userId');
         }
 
-        return $this->loadView('sistema/formReuniao',[
+        return $this->loadView('sistema/formularios/formReuniao',[
             'data'       => $registro,
             'profFix'    => $profFix                     // ← novo
         ]);

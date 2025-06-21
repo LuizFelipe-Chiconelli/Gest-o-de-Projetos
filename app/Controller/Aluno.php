@@ -17,14 +17,14 @@ class Aluno extends ControllerMain
     public function index()
     {
         $dados = $this->model->lista('nome');
-        return $this->loadView('sistema/listaAluno', $dados);
+        return $this->loadView('sistema/listas/listaAluno', $dados);
     }
 
     /* FORM ----------------------------------------------------------- */
     public function form($action, $id)
     {
         $dados = ['data' => $this->model->getById($id)];
-        return $this->loadView('sistema/formAluno', $dados);
+        return $this->loadView('sistema/formularios/formAluno', $dados);
     }
 
     /* INSERT --------------------------------------------------------- */

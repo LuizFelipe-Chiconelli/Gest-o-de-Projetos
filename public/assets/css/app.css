@@ -1,6 +1,4 @@
-/* --------------------------------------------------------
-   PALETA BÁSICA — sobrescreve apenas o “primary” do Bootstrap
-   -------------------------------------------------------- */
+
 :root {
   /* cor principal */
   --bs-primary:        #1464ff;

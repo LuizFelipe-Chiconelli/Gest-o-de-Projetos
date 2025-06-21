@@ -10,7 +10,7 @@ $reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
 
   <!-- ╔════════════════════ PROJETOS ════════════════════╗ -->
   <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white fw-semibold">
+    <div class="card-header bg-secondary text-white fw-semibold">
       Meus Projetos
     </div>
 
@@ -72,7 +72,7 @@ $reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
 
   <!-- ╔════════════════════ REUNIÕES ════════════════════╗ -->
   <div class="card shadow-sm">
-    <div class="card-header bg-success text-white fw-semibold">
+    <div class="card-header bg-secondary text-white fw-semibold">
       Minhas Reuniões
     </div>
 

@@ -9,41 +9,50 @@ class Sistema extends ControllerMain
 {
     public function __construct()
     {
-        // ControllerMain já valida login
-        parent::__construct();
+        parent::__construct(); // já valida login
     }
 
-    /** Dashboard que decide para onde levar o usuário */
-    /** dashboard pós-login */
-public function index()
-{
-    $nivel = (int) Session::get('userNivel');
+    /** Dashboard principal pós-login */
+    public function index()
+    {
+        $nivel = (int) Session::get('userNivel');
 
-    /* ───────── ADMIN / PROFESSOR ───────── */
-    if ($nivel <= 21) {
-        return $this->loadView('sistema/home', [
-            'nome'  => Session::get('userNome'),
-            'nivel' => $nivel
-        ]);
+        if ($nivel === 11) {
+            return $this->loadView('sistema/home/admin');
+        }
+
+        if ($nivel === 21) {
+            return $this->loadView('sistema/home/professor', [
+                'nome' => Session::get('userNome')
+            ]);
+        }
+
+        if ($nivel === 31) {
+            return $this->carregarDadosAluno('sistema/home/aluno');
+        }
+
+        return Redirect::page('login/signOut');
     }
 
-    /* ───────── ALUNO ───────── */
-    if ($nivel === 31) {
+    /** Página de projetos + reuniões do aluno */
+    public function listaAlunoProjReuniao()
+    {
+        $this->validaNivelAcesso(31); // acesso exclusivo para aluno
+        return $this->carregarDadosAluno('sistema/listas/listaAlunoProjReuniao');
+    }
 
+    /** Método reutilizável para carregar dados do aluno */
+    private function carregarDadosAluno(string $view)
+    {
         $projetos = $this->loadModel('ProjetoAluno')
                          ->listarProjetosDoAluno(Session::get('userId'));
 
         $reunioes = $this->loadModel('ReuniaoAluno')
                          ->listarReunioesDoAluno(Session::get('userId'));
 
-        return $this->loadView('sistema/alunoHome', [
-            'projetos' => $projetos,   // ← lista de projetos
-            'reunioes' => $reunioes    // ← lista de reuniões (talvez vazia)
+        return $this->loadView($view, [
+            'projetos' => $projetos,
+            'reunioes' => $reunioes
         ]);
     }
-
-    /* ───────── Nível inesperado ───────── */
-    return Redirect::page('login/signOut');
-}
-
 }

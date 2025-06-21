@@ -25,14 +25,14 @@ class Professor extends ControllerMain
     public function index()
     {
         $dados = $this->model->lista('nome');
-        return $this->loadView('sistema/listaProfessor', $dados);
+        return $this->loadView('sistema/listas/listaProfessor', $dados);
     }
 
     /* FORM ----------------------------------------------------------- */
     public function form($action, $id)
     {
         $dados = ['data' => $this->model->getById($id)];
-        return $this->loadView('sistema/formProfessor', $dados);
+        return $this->loadView('sistema/formularios/formProfessor', $dados);
     }
 
     /* INSERT --------------------------------------------------------- */

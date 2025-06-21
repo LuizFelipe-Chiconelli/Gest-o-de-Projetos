@@ -39,13 +39,13 @@ class Entrega extends ControllerMain
 
         $entregas = $b->orderBy('e.data','DESC')->findAll();
 
-        return $this->loadView('sistema/listaEntrega', $entregas);
+        return $this->loadView('sistema/listas/listaEntrega', $entregas);
     }
 
     /* ============ FORM ===================================== */
     public function form($action,$id)
     {
-        return $this->loadView('sistema/formEntrega', [
+        return $this->loadView('sistema/formularios/formEntrega', [
             'data' => $this->model->getById($id)
         ]);
     }

@@ -34,10 +34,18 @@
             </td>
             <td class="text-nowrap text-center">
               <a href="<?= baseUrl() ?>aluno/form/update/<?= $row['id'] ?>"
-                 class="btn btn-sm btn-warning me-2">Editar</a>
-              <a href="<?= baseUrl() ?>aluno/form/delete/<?= $row['id'] ?>"
-                 class="btn btn-sm btn-danger">Excluir</a>
+                class="btn btn-sm btn-warning me-2">Editar</a>
+
+              <!-- EXCLUIR – envia POST para aluno/delete -->
+          <form action="/aluno/delete"          
+                method="post" class="d-inline"
+                onsubmit="return confirm('Excluir aluno e usuário vinculado?');">
+            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+            <button class="btn btn-sm btn-danger">Excluir</button>
+          </form>
+
             </td>
+
           </tr>
           <?php endforeach; ?>
         </tbody>

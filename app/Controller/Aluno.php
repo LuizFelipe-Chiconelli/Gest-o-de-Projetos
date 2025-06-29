@@ -1,77 +1,125 @@
 <?php
-// Define o namespace e importa as classes principais usadas
 namespace App\Controller;
 
 use Core\Library\ControllerMain;
 use Core\Library\Redirect;
+use Core\Library\Session;
 
-// Classe do controller Aluno, que herda de ControllerMain
 class Aluno extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct(); // Chama o construtor da classe pai (ControllerMain)
-        $this->validaNivelAcesso();   // Verifica se o usuário tem permissão (nível 1-20)
-        $this->loadHelper('formHelper'); // Carrega o helper de formulário
+        parent::__construct();
+        $this->validaNivelAcesso();        // até nível 20 (prof/adm)
+        $this->loadHelper('formHelper');
     }
 
-    /* LISTA ---------------------------------------------------------- */
+    /* LISTA --------------------------------------------------------- */
     public function index()
     {
-        // Busca todos os alunos ordenados pelo nome
         $dados = $this->model->lista('nome');
-
-        // Carrega a view de listagem e envia os dados dos alunos
         return $this->loadView('sistema/listas/listaAluno', $dados);
     }
 
-    /* FORM ----------------------------------------------------------- */
+    /* FORM ---------------------------------------------------------- */
     public function form($action, $id)
     {
-        // Busca os dados de um aluno pelo ID e envia para o formulário
         $dados = ['data' => $this->model->getById($id)];
-
-        // Carrega a view do formulário de aluno
         return $this->loadView('sistema/formularios/formAluno', $dados);
     }
 
-    /* INSERT --------------------------------------------------------- */
+    /* INSERT -------------------------------------------------------- */
     public function insert()
     {
-        // Tenta inserir os dados recebidos via POST
-        $ok = $this->model->insert($this->request->getPost());
+    $post = $this->request->getPost();
 
-        // Redireciona dependendo do resultado da inserção
-        return Redirect::page(
-            $ok ? 'aluno' : 'aluno/form/insert/0', // Se deu certo, volta pra lista. Senão, volta para o formulário
-            $ok ? ['msgSucesso'=>'Inserido com sucesso.'] : [] // Mensagem de sucesso, se aplicável
-        );
+    /* ─── 1. valida senha ───────────────────────────── */
+    if (empty($post['senha']) || $post['senha'] !== $post['confSenha']) {
+        Session::set('errors', ['senha' => 'Senha vazia ou não confere.']);
+        Session::set('inputs', $post);
+        return Redirect::page('aluno/form/insert/0');
     }
 
-    /* UPDATE --------------------------------------------------------- */
+    /* ─── 2. cria usuário ───────────────────────────── */
+    $usuarioId = $this->loadModel('Usuario')->insertReturnId([
+        'nome'           => trim($post['nome']),
+        'email'          => strtolower(trim($post['email'])),
+        'senha'          => password_hash($post['senha'], PASSWORD_DEFAULT),
+        'nivel'          => 31,
+        'statusRegistro' => $post['statusRegistro']
+    ]);
+
+    if (!$usuarioId) {
+        Session::set('errors', ['email' => 'Falha ao criar usuário.']);
+        Session::set('inputs', $post);
+        return Redirect::page('aluno/form/insert/0');
+    }
+
+    /* ─── 3. gera RA aleatório e grava aluno ────────── */
+    $post['usuario_id'] = $usuarioId;
+    $post['ra']         = bin2hex(random_bytes(5));       // 10 caracteres
+
+    unset($post['senha'], $post['confSenha']);            // não são colunas
+
+    $ok = $this->model->insert($post);
+
+    if (!$ok) { // rollback
+        $this->loadModel('Usuario')->db->where('id', $usuarioId)->delete();
+    }
+
+    return Redirect::page(
+        $ok ? 'aluno' : 'aluno/form/insert/0',
+        $ok ? ['msgSucesso' => 'Inserido com sucesso.'] : []
+    );
+    }
+
+    /* UPDATE -------------------------------------------------------- */
     public function update()
     {
-        // Recebe os dados do formulário via POST
         $post = $this->request->getPost();
-
-        // Tenta atualizar os dados
         $ok   = $this->model->update($post);
 
-        // Redireciona dependendo do resultado da atualização
+        if ($ok) {
+            /* sincroniza nome / e-mail / status no usuário ---------- */
+            $this->loadModel('Usuario')->db
+                 ->where('id', $post['usuario_id'])
+                 ->update([
+                     'nome'           => trim($post['nome']),
+                     'email'          => strtolower(trim($post['email'])),
+                     'statusRegistro' => $post['statusRegistro']
+                 ]);
+        }
+
         return Redirect::page(
-            $ok ? 'aluno' : "aluno/form/update/{$post['id']}", // Volta pra lista ou formulário
-            $ok ? ['msgSucesso'=>'Alterado com sucesso.'] : [] // Mensagem de sucesso, se aplicável
+            $ok ? 'aluno' : "aluno/form/update/{$post['id']}",
+            $ok ? ['msgSucesso' => 'Alterado com sucesso.'] : []
         );
     }
 
-    /* DELETE --------------------------------------------------------- */
+    /* DELETE -------------------------------------------------------- */
     public function delete()
     {
-        // Tenta excluir os dados recebidos via POST
-        $ok = $this->model->delete($this->request->getPost());
+        $idAluno = (int) ($this->request->getPost()['id']
+                       ?? ($this->request->getRotaParametros()['id'] ?? 0));
 
-        // Redireciona de volta para a lista com mensagem, se necessário
-        return Redirect::page('aluno',
-            $ok ? ['msgSucesso'=>'Excluído.'] : []);
+        $aluno = $this->model->getById($idAluno);
+        if (!$aluno) {
+            return Redirect::page('aluno', ['msgError' => 'Aluno não encontrado.']);
+        }
+
+        /* 1. remove em aluno --------------------------------------- */
+        $ok = $this->model->db->where('id', $idAluno)->delete();
+
+        /* 2. remove usuário vinculado, se houver ------------------- */
+        if ($ok && !empty($aluno['usuario_id'])) {
+            $this->loadModel('Usuario')->db
+                 ->where('id', $aluno['usuario_id'])->delete();
+        }
+
+        return Redirect::page(
+            'aluno',
+            $ok ? ['msgSucesso' => 'Excluído com sucesso.']
+                : ['msgError'   => 'Falha ao excluir.']
+        );
     }
 }

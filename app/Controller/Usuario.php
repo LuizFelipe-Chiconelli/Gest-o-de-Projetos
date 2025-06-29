@@ -38,98 +38,201 @@ class Usuario extends ControllerMain
         return $this->loadView('sistema/listas/listaUsuario', $dados);
     }
 
-    /** Carrega o formulário de cadastro ou edição */
-    public function form(?string $action=null, ?int $id=null)
+    /** Carrega o formulário de cadastro (insert) ou edição (update) */
+    public function form(?string $action = 'insert', ?int $id = null)
     {
-        // Se for inserção, define valores padrão
-        $dados = ($this->action==='insert')
-               ? ['nivel'=>21,'trocarSenha'=>'S','statusRegistro'=>1]
-               : $this->model->getById($id); // Se for edição, busca do banco
-
-        return $this->loadView('sistema/formularios/formUsuario', $dados);
+    if ($action === 'insert') {                     // valores default
+        $usuario = [
+            'id'             => '',
+            'nome'           => '',
+            'email'          => '',
+            'statusRegistro' => 1,
+            'nivel'          => 11                 // ← sempre Administrador
+        ];
+    } else {                                        // update
+        $usuario = $this->model->getById($id);
+        if (!$usuario) {
+            Session::set('msgError', 'Usuário não encontrado.');
+            return Redirect::page('usuario');
+        }
+        /* nada de carregar campos extras */
     }
 
-    /** Insere um novo usuário e vincula à tabela de professor ou aluno */
+    return $this->loadView(
+        'sistema/formularios/formUsuario',
+        array_merge($usuario, ['formAction' => $action])
+    );
+    }
+
+    /** Insere novo usuário – sempre nível 11 (Administrador) */
     public function insert()
     {
-        $post = $this->request->getPost();
+    $post = $this->request->getPost();
 
-        // Valida se a senha foi preenchida
-        if (empty($post['senha'])) {
-            Session::set('errors', ['senha' => 'Preencha a senha.']);
-            Session::set('inputs', $post);
-            return Redirect::page('usuario/form/insert/0');
-        }
-
-        // Gera o hash da senha
-        unset($post['action'], $post['confSenha']);
-        $post['senha'] = password_hash($post['senha'], PASSWORD_DEFAULT);
-
-        // Insere usuário na tabela `usuario`
-        $usuarioId = $this->model->insertReturnId($post);
-        if (!$usuarioId) {
-            return Redirect::page('usuario', ['msgError' => 'Erro ao inserir usuário.']);
-        }
-
-        // Se for aluno, vincula na tabela `aluno`
-        if ((int)$post['nivel'] === 31) {
-            $this->loadModel('Aluno')->insert([
-                'nome'        => $post['nome'],
-                'email'       => $post['email'],
-                'curso'       => 'Não informado',
-                'ra'          => uniqid(),
-                'usuario_id'  => $usuarioId
-            ]);
-        }
-
-        // Se for professor, vincula na tabela `professor`
-        elseif ((int)$post['nivel'] === 21) {
-            $this->loadModel('Professor')->insert([
-                'nome'         => $post['nome'],
-                'email'        => $post['email'],
-                'especialidade'=> 'Não informada',
-                'area'         => 'Não informada',
-                'usuario_id'   => $usuarioId
-            ]);
-        }
-
-        return Redirect::page('usuario', ['msgSucesso' => 'Usuário inserido com sucesso.']);
+    /* 1. Validação mínima */
+    if (empty($post['senha'])) {
+        Session::set('errors', ['senha' => 'Preencha a senha.']);
+        Session::set('inputs', $post);
+        return Redirect::page('usuario/form/insert/0');
     }
 
-    /** Atualiza os dados de um usuário */
+    /* 2. Garante que não exista outro e-mail igual */
+    if ($this->model->db->where('email', $post['email'])->first()) {
+        Session::set('errors', ['email' => 'E-mail já cadastrado.']);
+        Session::set('inputs', $post);
+        return Redirect::page('usuario/form/insert/0');
+    }
+
+    /* 3. Monta dados */
+    $dados = [
+        'nome'           => trim($post['nome']),
+        'email'          => strtolower(trim($post['email'])),
+        'senha'          => password_hash($post['senha'], PASSWORD_DEFAULT),
+        'nivel'          => 11,   // sempre Administrador
+        'statusRegistro' => 1
+    ];
+
+    $usuarioId = $this->model->insertReturnId($dados);
+
+    if (!$usuarioId) {
+        return Redirect::page('usuario', ['msgError' => 'Erro ao inserir usuário.']);
+    }
+
+    return Redirect::page(
+        'usuario',
+        ['msgSucesso' => 'Administrador criado com sucesso.']
+    );
+    }
+
+    /** Atualiza usuário e mantém aluno/professor sincronizados */
     public function update()
     {
-        $post = $this->request->getPost();
-        unset($post['action'], $post['confSenha']);
+    /* ---------- entrada ---------- */
+    $p        = $this->request->getPost();
+    $id       = (int) $p['id'];                           // PK
+    $camposOK = ['nome', 'email', 'statusRegistro', 'senha'];
 
-        // Atualiza senha apenas se foi informada
-        if (empty($post['senha'])) {
-            unset($post['senha']);
-        } else {
-            $post['senha'] = password_hash($post['senha'], PASSWORD_DEFAULT);
+    /* ------- senha opcional ------- */
+    if (empty($p['senha'])) {
+        unset($p['senha']);
+    } else {
+        $p['senha'] = password_hash($p['senha'], PASSWORD_DEFAULT);
+    }
+
+    /* ------- dados sem o ID (para SET) ------- */
+    $dadosSet = [];
+    foreach ($camposOK as $campo) {
+        if (isset($p[$campo])) {
+            $dadosSet[$campo] = $p[$campo];
+        }
+    }
+
+    /* ---------- 1) registro atual ---------- */
+    $usuarioAtual = $this->model->getById($id);
+    if (!$usuarioAtual) {
+        return Redirect::page('usuario', ['msgError' => 'Usuário não encontrado.']);
+    }
+    $nivel = (int) $usuarioAtual['nivel'];                // 21, 31 ou 11
+
+    /* ---------- 2) valida (sem gravar) ---------- */
+    $dadosVal = array_merge(['id' => $id], $dadosSet);     // id requerido p/ Validator
+    if ($this->model->update($dadosVal) === false) {       // validação falhou
+        return Redirect::page('usuario', ['msgError' => 'Falha de validação.']);
+    }
+
+    /* ---------- 3) executa UPDATE real (★) ---------- */
+    $linhasAfetadas = $this->model->db
+        ->where('id', $id)
+        ->update($dadosSet);                               // id NÃO está no SET
+
+    /* ---------- 4) espelha nome/e-mail ---------- */
+    $espelho = [
+        'nome'  => $dadosSet['nome']  ?? $usuarioAtual['nome'],
+        'email' => $dadosSet['email'] ?? $usuarioAtual['email']
+    ];
+
+    if ($nivel === 31) {                                  // ALUNO
+        $alunoModel = $this->loadModel('Aluno');
+        $rows = $alunoModel->db
+                           ->where('usuario_id', $id)
+                           ->update($espelho);
+        if ($rows === 0) {
+            $alunoModel->insert($espelho + [
+                'curso'          => 'Não informado',
+                'ra'             => uniqid(),
+                'usuario_id'     => $id,
+                'statusRegistro' => 1
+            ]);
         }
 
-        $ok = $this->model->update($post);
+    } elseif ($nivel === 21) {                            // PROFESSOR
+        $profModel = $this->loadModel('Professor');
+        $rows = $profModel->db
+                          ->where('usuario_id', $id)
+                          ->update($espelho);
+        if ($rows === 0) {
+            $profModel->insert($espelho + [
+                'especialidade'  => 'Não informada',
+                'area'           => 'Não informada',
+                'usuario_id'     => $id,
+                'statusRegistro' => 1
+            ]);
+        }
+    }
+    /* nível 11 → nada a espelhar */
 
-        return Redirect::page('usuario',
-            $ok ? ['msgSucesso'=>'Alterado com sucesso.'] : []);
+    /* ---------- 5) redireciona ---------- */
+    return Redirect::page(
+        'usuario',
+        ($linhasAfetadas > 0)
+            ? ['msgSucesso' => 'Dados atualizados com sucesso.']
+            : ['msgSucesso' => 'Nenhum campo mudou, sincronização concluída.']
+    );
     }
 
-    /** Exclui um usuário */
+
+
     public function delete()
     {
-        $ok = $this->model->delete($this->request->getPost());
+    /* 1. coleta id por POST ou GET */
+    $post = $this->request->getPost();          // ← array completo
+    $id   = (int) ($post['userId'] ?? 0
+               ?: ($this->request->getRotaParametros()['id']     ?? 0)
+               ?: ($this->request->getRotaParametros()['action'] ?? 0));
 
-        return Redirect::page('usuario',
-            $ok ? ['msgSucesso'=>'Excluído.']
-                : ['msgError'=>'Falha ao excluir.']);
+    if ($id === 0) {
+        return Redirect::page('usuario', ['msgError' => 'ID inválido.']);
     }
 
-    /** Carrega o formulário para trocar a senha */
-    public function formTrocarSenha()
-    {
-        return $this->loadView('sistema/formularios/formTrocarSenha');
+    $usuario = $this->model->getById($id);
+    if (!$usuario) {
+        return Redirect::page('usuario', ['msgError' => 'Usuário não encontrado.']);
     }
+
+    /* 2. exclui nas tabelas específicas, se necessário */
+    switch ((int)$usuario['nivel']) {
+        case 31: // Aluno
+            $this->loadModel('Aluno')->db
+                 ->where('usuario_id', $id)->delete();
+            break;
+
+        case 21: // Professor
+            $this->loadModel('Professor')->db
+                 ->where('usuario_id', $id)->delete();
+            break;
+        // nível 11 não precisa
+    }
+
+    /* 3. exclui o próprio usuário */
+    $ok = $this->model->db->where('id', $id)->delete();
+
+    return Redirect::page(
+        'usuario',
+        $ok ? ['msgSucesso' => 'Usuário excluído com sucesso.']
+            : ['msgError'   => 'Falha ao excluir usuário.']
+    );
+    }
+
 
     /** Atualiza a senha do próprio usuário (pelo formulário de troca de senha) */
     public function updateNovaSenha()

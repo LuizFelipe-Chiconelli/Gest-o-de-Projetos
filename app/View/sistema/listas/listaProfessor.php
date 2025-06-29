@@ -28,10 +28,16 @@
           </td>
           <td class="text-center">
             <a href="<?= baseUrl() ?>professor/form/update/<?= $row['id'] ?>"
-               class="btn btn-sm btn-warning me-2">Editar</a>
-            <a href="<?= baseUrl() ?>professor/form/delete/<?= $row['id'] ?>"
-               class="btn btn-sm btn-danger">Excluir</a>
+              class="btn btn-sm btn-warning me-2">Editar</a>
+
+            <form action="<?= baseUrl() ?>professor/delete"
+                  method="post" class="d-inline"
+                  onsubmit="return confirm('Excluir professor e usuário vinculado?');">
+              <input type="hidden" name="id" value="<?= $row['id'] ?>">
+              <button class="btn btn-sm btn-danger">Excluir</button>
+            </form>
           </td>
+
         </tr>
         <?php endforeach; ?>
       </tbody>

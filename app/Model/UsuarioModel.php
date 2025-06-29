@@ -14,7 +14,7 @@ class UsuarioModel extends ModelMain
         ],
         'email' => [
             'label'=>'E-mail',
-            'rules'=>'required|email|min:5|max:150|unique:usuario,email'
+            'rules'=>'required|email|unique:usuario,email,{id}'
         ],
         'nivel' => [
             'label' => 'Nível',

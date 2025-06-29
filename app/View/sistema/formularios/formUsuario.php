@@ -1,31 +1,38 @@
 <?php
 // formUsuario.php
 
-use Core\Library\Session;
+// Pega a ação atual da página (insert, update, etc.)
+$action = $this->request->getAction();
 
-$action    = $this->request->getAction();
-$isInsert  = in_array($action, ['insert', 'update']);
+// Verifica se a ação atual é de inserir ou atualizar (mostra campos de senha)
+$isInsert = in_array($action, ['insert', 'update']);
+
 ?>
 
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-12 col-md-10 col-lg-8 col-xl-6">
       <div class="card border-0 shadow-lg">
-        
-        <!-- CARD HEADER -->
+
+        <!-- Cabeçalho do card com ícone e título -->
         <div class="card-header bg-primary text-white text-center py-3">
           <i class="fas fa-user fa-2x mb-2"></i>
           <h5 class="mb-0">Usuário</h5>
         </div>
-        
-        <!-- CARD BODY -->
+
+        <!-- Corpo do card com o formulário -->
         <div class="card-body p-4">
           <form method="POST" action="<?= $this->request->formAction() ?>">
-            <input type="hidden" name="id"     value="<?= setValor('id',0) ?>">
+
+            <!-- Campo oculto com ID do usuário -->
+            <input type="hidden" name="id" value="<?= setValor('id',0) ?>">
+
+            <!-- Campo oculto com a ação atual -->
             <input type="hidden" name="action" value="<?= $action ?>">
 
             <div class="row g-4">
-              <!-- NOME -->
+
+              <!-- Campo: Nome do usuário -->
               <div class="col-12">
                 <div class="form-floating">
                   <input type="text" name="nome" maxlength="60"
@@ -37,7 +44,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
                 </div>
               </div>
 
-              <!-- NÍVEL -->
+              <!-- Campo: Nível de acesso (Administrador, Professor, Aluno) -->
               <div class="col-12 col-lg-6">
                 <label class="form-label">Nível *</label>
                 <select name="nivel" class="form-select border-primary" required>
@@ -49,7 +56,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
                 <?= setMsgFilderError('nivel') ?>
               </div>
 
-              <!-- EMAIL -->
+              <!-- Campo: E-mail -->
               <div class="col-12 col-lg-6">
                 <div class="form-floating">
                   <input type="email" name="email" maxlength="150"
@@ -61,7 +68,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
                 </div>
               </div>
 
-              <!-- STATUS -->
+              <!-- Campo: Status do usuário -->
               <div class="col-12 col-lg-6">
                 <label class="form-label">Status *</label>
                 <select name="statusRegistro"
@@ -72,8 +79,9 @@ $isInsert  = in_array($action, ['insert', 'update']);
                 <?= setMsgFilderError('statusRegistro') ?>
               </div>
 
+              <!-- Campos de senha (apenas quando for inserir ou atualizar) -->
               <?php if ($isInsert): ?>
-                <!-- SENHA -->
+                <!-- Senha -->
                 <div class="col-12 col-lg-6">
                   <div class="form-floating">
                     <input type="password" name="senha" 
@@ -83,7 +91,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
                   </div>
                 </div>
 
-                <!-- CONFIRMAR SENHA -->
+                <!-- Confirmar senha -->
                 <div class="col-12 col-lg-6">
                   <div class="form-floating">
                     <input type="password" name="confSenha" 
@@ -95,7 +103,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
               <?php endif; ?>
             </div>
 
-            <!-- BOTOES -->
+            <!-- Botões de ação: Cancelar e Salvar -->
             <div class="d-flex justify-content-between align-items-center mt-4">
               <a href="<?= baseUrl() ?>usuario" class="btn btn-outline-secondary">
                 Cancelar
@@ -105,6 +113,7 @@ $isInsert  = in_array($action, ['insert', 'update']);
               </button>
             </div>
 
+            <!-- Mostra alertas de erro ou sucesso -->
             <?= exibeAlerta() ?>
           </form>
         </div>
@@ -112,3 +121,4 @@ $isInsert  = in_array($action, ['insert', 'update']);
     </div>
   </div>
 </div>
+

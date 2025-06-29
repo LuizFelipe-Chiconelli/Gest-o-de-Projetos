@@ -59,3 +59,34 @@
     </div>
   </div>
 </div>
+<script>
+  const senha1 = document.getElementById('NovaSenha');
+  const senha2 = document.getElementById('NovaSenha2');
+  const btn = document.getElementById('btnOk');
+  const msg1 = document.getElementById('msg1');
+  const msg2 = document.getElementById('msg2');
+
+  function validarSenhas() {
+    const s1 = senha1.value;
+    const s2 = senha2.value;
+
+    if (s1.length < 6) {
+      msg1.innerText = "A senha deve ter pelo menos 6 caracteres.";
+      btn.disabled = true;
+    } else {
+      msg1.innerText = "";
+    }
+
+    if (s1 && s2 && s1 === s2 && s1.length >= 6) {
+      msg2.innerText = "";
+      btn.disabled = false;
+    } else {
+      msg2.innerText = s1 !== s2 ? "As senhas não coincidem." : "";
+      btn.disabled = true;
+    }
+  }
+
+  senha1.addEventListener('input', validarSenhas);
+  senha2.addEventListener('input', validarSenhas);
+</script>
+

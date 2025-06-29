@@ -1,9 +1,8 @@
 <?php
-/**  Dashboard do aluno
- *   Garante que sempre tenhamos arrays válidos vinda do controller. */
-$dados     = $dados     ?? [];
-$projetos  = $projetos  ?? ($dados['projetos']  ?? []);
-$reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
+/** Dashboard do aluno */
+$dados    = $dados     ?? [];
+$projetos = $projetos  ?? ($dados['projetos']  ?? []);
+$reunioes = $reunioes  ?? ($dados['reunioes']  ?? []);
 ?>
 
 <div class="container my-4">
@@ -23,8 +22,7 @@ $reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
             <th>Área</th>
             <th>Status</th>
             <th style="width:140px">Previsão</th>
-            <th style="width:110px"></th><!-- Botão Entregar -->
-          </tr>
+            <th style="width:110px"></th><!-- Botão Entregar -->          </tr>
         </thead>
 
         <tbody>
@@ -41,7 +39,6 @@ $reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
             </td>
             <td class="text-center">
               <?php
-                /* ─── só exibe o botão se NÃO estiver finalizado ─── */
                 $status = strtolower(trim($p['status']));
                 $jaFinalizado = in_array($status, [
                     'concluído',
@@ -68,7 +65,6 @@ $reunioes  = $reunioes  ?? ($dados['reunioes']  ?? []);
       </table>
     </div><!-- /.card-body -->
   </div><!-- /.card -->
-
 
   <!-- ╔════════════════════ REUNIÕES ════════════════════╗ -->
   <div class="card shadow-sm">

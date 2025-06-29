@@ -12,39 +12,42 @@ class Entrega extends ControllerMain
 {
     public function __construct()
     {
-        parent::__construct();          // exige login
-        $this->validaNivelAcesso(31);   // libera níveis ≤31
-        $this->loadHelper('formHelper');
+        parent::__construct();          // Verifica se o usuário está logado
+        $this->validaNivelAcesso(31);   // Permite acesso para usuários com nível 31 ou inferior
+        $this->loadHelper('formHelper'); // Carrega helper para formulários
     }
 
     /* ============ LISTA ==================================== */
     public function index()
     {
-        /* monta a consulta */
+        // Monta a consulta para buscar as entregas com o nome do projeto
         $b = $this->model->db
              ->select(
-                 // alias “entrega_id” evita conflito de nomes na view
+                 // Define os campos que serão buscados (com alias para evitar conflitos)
                  'e.id        AS entrega_id,
                   e.*,
                   p.titulo    AS projeto'
              )
-             ->table('entrega e')
-             ->join('projeto p', 'p.id = e.projeto_id');
+             ->table('entrega e') // Define a tabela principal (com alias)
+             ->join('projeto p', 'p.id = e.projeto_id'); // Junta com a tabela de projeto
 
-        /* aluno vê somente as SUAS entregas ------------------ */
+        // Se for um aluno (nível 31), filtra para mostrar apenas suas entregas
         if ((int) Session::get('userNivel') === 31) {
             $b->join('projeto_aluno pa','pa.projeto_id = e.projeto_id')
               ->where('pa.aluno_id', Session::get('userId'));
         }
 
+        // Executa a busca e ordena pela data (mais recente primeiro)
         $entregas = $b->orderBy('e.data','DESC')->findAll();
 
+        // Carrega a view da lista e envia as entregas
         return $this->loadView('sistema/listas/listaEntrega', $entregas);
     }
 
     /* ============ FORM ===================================== */
     public function form($action,$id)
     {
+        // Carrega o formulário de entrega com os dados do ID (se houver)
         return $this->loadView('sistema/formularios/formEntrega', [
             'data' => $this->model->getById($id)
         ]);
@@ -53,12 +56,16 @@ class Entrega extends ControllerMain
     /* ========================================================
        INSERIR / ATUALIZAR
        -------------------------------------------------------- */
+
+    // Atualiza o status do projeto com base no status da entrega
     private function espelhaStatusProjeto(array $post): void
     {
-        /* altera o status do projeto se a entrega foi concluída */
+        // Se a entrega for marcada como "Entregue" ou "Finalizado"
         if (in_array($post['status'], ['Entregue','Finalizado'])) {
+            // Define o novo status do projeto com base no status da entrega
             $novo = $post['status'] === 'Finalizado' ? 'Concluído' : 'Entregue';
 
+            // Atualiza o status na tabela projeto
             $this->model->db
                  ->table('projeto')
                  ->where('id', $post['projeto_id'])
@@ -68,15 +75,16 @@ class Entrega extends ControllerMain
 
     public function insert()
     {
-        $post            = $this->request->getPost();
-        $post['arquivo'] = null;                 // upload ficará para depois
+        $post            = $this->request->getPost(); // Pega os dados do formulário
+        $post['arquivo'] = null; // O upload do arquivo será feito depois
 
-        $ok = $this->model->insert($post);
-        if ($ok) $this->espelhaStatusProjeto($post);
+        $ok = $this->model->insert($post); // Tenta inserir no banco
+        if ($ok) $this->espelhaStatusProjeto($post); // Atualiza o status do projeto se deu certo
 
-        /* aluno volta ao dashboard, professor/admin à lista */
+        // Define a rota de retorno com base no nível do usuário
         $rota = (int) Session::get('userNivel') === 31 ? 'sistema' : 'entrega';
 
+        // Redireciona com mensagem de sucesso ou erro
         return Redirect::page(
             $rota,
             $ok ? ['msgSucesso' => 'Entrega registrada.']
@@ -86,11 +94,11 @@ class Entrega extends ControllerMain
 
     public function update()
     {
-        $post            = $this->request->getPost();
+        $post            = $this->request->getPost(); // Pega os dados do formulário
         $post['arquivo'] = null;
 
-        $ok = $this->model->update($post);
-        if ($ok) $this->espelhaStatusProjeto($post);
+        $ok = $this->model->update($post); // Tenta atualizar os dados
+        if ($ok) $this->espelhaStatusProjeto($post); // Atualiza o status do projeto se necessário
 
         $rota = (int) Session::get('userNivel') === 31 ? 'sistema' : 'entrega';
 
@@ -104,8 +112,10 @@ class Entrega extends ControllerMain
     /* ============ DELETE =================================== */
     public function delete()
     {
+        // Tenta excluir o registro com base nos dados enviados por POST
         $ok = $this->model->delete($this->request->getPost());
 
+        // Redireciona com mensagem de sucesso ou erro
         return Redirect::page(
             'entrega',
             $ok ? ['msgSucesso' => 'Entrega excluída.']

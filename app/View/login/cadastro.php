@@ -63,7 +63,8 @@
             </div>
             
             <div class="d-grid gap-2">
-              <button class="btn btn-success btn-lg">Registrar</button>
+              <div id="mensagemSenha" class="text-danger small mb-2"></div>
+              <button id="btnRegistrar" class="btn btn-success btn-lg" disabled>Registrar</button>
               <a href="<?= baseUrl() ?>login"
                  class="btn btn-outline-secondary btn-lg">
                 Já tem conta? Entrar
@@ -114,4 +115,31 @@
         </div>`;
     }
   }
+
+  // Validação de senha com mínimo de 6 caracteres e confirmação
+  function validarSenhaSimples() {
+    const senha = document.getElementById("register-password").value;
+    const confirmar = document.getElementById("confirm-register-password").value;
+    const mensagem = document.getElementById("mensagemSenha");
+    const botao = document.getElementById("btnRegistrar");
+
+    let texto = "";
+
+    if (senha.length < 6) {
+      texto += "A senha deve ter pelo menos 6 caracteres.<br>";
+    }
+
+    if (senha !== confirmar) {
+      texto += "As senhas não coincidem.<br>";
+    }
+
+    mensagem.innerHTML = texto;
+    botao.disabled = texto !== "";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("register-password").addEventListener("keyup", validarSenhaSimples);
+    document.getElementById("confirm-register-password").addEventListener("keyup", validarSenhaSimples);
+  });
 </script>
+

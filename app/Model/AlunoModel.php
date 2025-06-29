@@ -19,4 +19,5 @@ class AlunoModel extends ModelMain
         /* 1 = ativo / 2 = inativo */
         'statusRegistro' => ['label'=>'Status','rules'=>'required|int']
     ];
+
 }

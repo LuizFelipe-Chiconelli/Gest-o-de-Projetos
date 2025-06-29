@@ -49,7 +49,7 @@ class Sistema extends ControllerMain
 
         $reunioes = $this->loadModel('ReuniaoAluno')
                          ->listarReunioesDoAluno(Session::get('userId'));
-
+        
         return $this->loadView($view, [
             'projetos' => $projetos,
             'reunioes' => $reunioes

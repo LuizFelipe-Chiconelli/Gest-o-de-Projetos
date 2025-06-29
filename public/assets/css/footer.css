@@ -1,0 +1,54 @@
+/* ------------------------------------------------------------------ */
+/*  RODAPÉ CLARO                                                      */
+/* ------------------------------------------------------------------ */
+.footer-main{
+    background:#f6f7fb;                /* cinza quase branco          */
+    color:#4a4f63;                     /* cinza-escuro para texto      */
+    font-size:.9rem;
+    padding:3rem 0 2.5rem;
+    border-top:1px solid #e1e4ec;
+}
+
+/* títulos das colunas */
+.footer-main h5{
+    font-weight:600;
+    color:#303546;
+    margin-bottom:1rem;
+}
+
+/* links: cinza + sublinhado suave ao passar o mouse */
+.footer-main a{
+    color:#4a4f63;
+    text-decoration:none;
+    transition:all .15s;
+}
+.footer-main a:hover{
+    color:#1e6dff;                     /* azul tema como realce */
+    text-decoration:underline;
+}
+
+/* ícones sociais (círculo leve) */
+.social-icon{
+    width:40px; height:40px;
+    display:inline-flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    background:#e2e6f0;                /* cinza claro               */
+    color:#1e6dff;
+    font-size:1.15rem;
+    margin-right:.4rem;
+    transition:all .2s;
+}
+.social-icon:hover{
+    background:#1e6dff;
+    color:#fff;
+    transform:translateY(-2px);
+}
+
+/* separador copyright */
+.footer-copy{
+    border-top:1px solid #e1e4ec;
+    margin-top:2.5rem;
+    padding-top:1.2rem;
+    font-size:.8rem;
+    color:#6b6f80;
+}

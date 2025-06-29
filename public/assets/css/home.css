@@ -1,0 +1,18 @@
+/* HERO ------------------------------------------------------------------------------------------------*/
+.hero-gpsystem{
+  /* imagem: coloque a URL que escolheu abaixo */
+  background: url("<?= baseUrl() ?>assets/img/hero-project.svg") center/cover no-repeat,
+              linear-gradient(135deg,#2684ff 0%, #4ea1ff 50%, #62afff 100%);
+  /* se preferir usar a ilustração externa, deixe só a 1ª camada */
+  min-height: 60vh;                 /* ocupa 60 % da viewport */
+  padding: 4rem 0;
+  border-radius: .75rem;
+  box-shadow: 0 0 30px rgba(0,0,0,.06);
+}
+
+/* tipografia dentro do hero para melhor contraste */
+.hero-gpsystem h1,
+.hero-gpsystem p{
+  color:#fff;
+  text-shadow:0 2px 4px rgba(0,0,0,.25);
+}

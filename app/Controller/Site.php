@@ -5,13 +5,22 @@ use Core\Library\ControllerMain;
 
 class Site extends ControllerMain
 {
-    public function quemSomos()
+    /**
+     * Página “Quem Somos”
+     *
+     * @param string|null $acao  (router envia, mas aqui é ignorado)
+     * @param string|null $id    (router envia, mas aqui é ignorado)
+     */
+    public function quemSomos($acao = null, $id = null)
     {
-        $this->loadView("quemSomos");
+        return $this->loadView('quemSomos');
     }
 
-    public function produtosServicos()
+    /**
+     * Página “Produtos e Serviços”
+     */
+    public function produtosServicos($acao = null, $id = null)
     {
-        $this->loadView("produtosServicos");
+        return $this->loadView('produtosServicos');
     }
 }

@@ -1,0 +1,61 @@
+/*  NAVBAR  –  aplica-se à <header> ou .navbar-main
+   ------------------------------------------------------------- */
+.navbar-main{
+  background: linear-gradient(135deg,#0d6efd 0%,#4c8dff 100%);
+  backdrop-filter: saturate(120%) blur(6px);     /* sensação de vidro */
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  transition: background .3s;
+}
+.navbar-main .navbar-brand img{width:68px;height:68px}
+
+/* links ------------------------------------------------------- */
+.navbar-main .nav-link{
+  color:#fff!important;
+  font-weight:600;
+  letter-spacing:.15px;
+  padding:.7rem 1rem;
+  position:relative;
+  transition:color .2s;
+}
+.navbar-main .nav-link::after{               /* sublinhado animado */
+  content:\"\";position:absolute;left:0;bottom:6px;height:2px;width:0;
+  background:#fff;transition:width .25s;
+}
+.navbar-main .nav-link:hover,
+.navbar-main .nav-link:focus{
+  color:#e2eaff!important;
+}
+.navbar-main .nav-link:hover::after,
+.navbar-main .nav-link.active::after{width:100%}
+
+/* botão “Área restrita” -------------------------------------- */
+.navbar-main .btn-auth{
+  color:#0d6efd;border-color:#fff;background:#fff;
+  font-weight:600;padding:.45rem 1.25rem;border-radius:8px;
+  transition:all .2s;
+}
+.navbar-main .btn-auth:hover{
+  color:#fff;background:transparent;border-color:#e2eaff;
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-weight: 600;          /* Inter 600 ≈ semibold */
+  letter-spacing: .2px;
+}
+
+
+/*  hamburguer (mobile) --------------------------------------- */
+.navbar-toggler{
+  border:0!important;outline:0!important;
+}
+.navbar-toggler-icon{
+  background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAzMCI+PHBhdGggc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuOTUpIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBkPSJNNCA3aDIyIE00IDE1aDIyIE00IDIzSDI2Ii8+PC9zdmc+");
+}
+
+
+/*  drop-down ---------------------------------------------------*/
+.dropdown-menu{
+  border:0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+.dropdown-item{padding:.55rem 1.1rem;font-weight:500}
+.dropdown-item:hover{background:#f3f6ff;color:#0d6efd}

@@ -9,7 +9,10 @@ defined('DEFAULT_METODO') || define("DEFAULT_METODO", 'index');
 // Controller autorizados a executar sem login
 defined('CONTROLLER_AUTH') || define('CONTROLLER_AUTH', [
     "Home",
-    "Login"
+    "Login",
+    "Site",
+    "site",
+
 ]);
 
 // Definir o time_zone_default

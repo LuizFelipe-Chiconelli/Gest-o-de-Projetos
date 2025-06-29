@@ -10,7 +10,6 @@
              class="table table-striped table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th>#</th>
             <th>RA</th>
             <th>Nome</th>
             <th>Curso</th>
@@ -22,7 +21,6 @@
         <tbody>
           <?php foreach ($dados as $row): ?>
           <tr>
-            <td><?= $row['id'] ?></td>
             <td><?= $row['ra'] ?></td>
             <td><?= $row['nome'] ?></td>
             <td><?= $row['curso'] ?></td>

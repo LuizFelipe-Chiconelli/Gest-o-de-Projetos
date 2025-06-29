@@ -7,7 +7,6 @@
     <table id="tblProjetos" class="table table-striped table-hover align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th>#</th>
           <th>Título</th>
           <th>Professor</th>
           <th>Área</th>
@@ -20,7 +19,6 @@
       <tbody>
         <?php foreach($dados as $row): ?>
           <tr>
-            <td><?= $row['id'] ?? '-' ?></td>
             <td><?= $row['titulo'] ?? '-' ?></td>
             <td><?= $row['professor'] ?? 'Não cadastrado' ?></td>
             <td><?= $row['area'] ?? '-' ?></td>

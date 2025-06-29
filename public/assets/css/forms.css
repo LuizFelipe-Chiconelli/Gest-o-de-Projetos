@@ -1,0 +1,60 @@
+/* =====  Cabeçalho que o formHelper gera  ===================== */
+.row.bg-secondary {
+  /* degradê azul bonito em vez do cinza-chumbo */
+  background: linear-gradient(90deg, #0d6efd 0%, #4e7cf4 100%);
+  border-radius: .5rem .5rem 0 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.row.bg-secondary h3        { font-size: 1.25rem; margin: 0; }
+.row.bg-secondary .btn      { --bs-btn-font-weight: 500; }
+
+/* =====  Campos de formulário  ================================= */
+form .form-control,
+form .form-select {
+  border-radius: .5rem;
+  box-shadow: none !important;
+}
+form textarea.form-control { resize: vertical; }
+
+/* foco azul suave */
+form .form-control:focus,
+form .form-select:focus {
+  border-color:#6c9df5;
+  box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+}
+
+/* título das seções (por ex. “Alunos vinculados”) */
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  color: #0d6efd;
+}
+hr.section-divider {
+  margin: .5rem 0 1.5rem;
+  opacity: .15;
+}
+
+/* =====  Lista de alunos  ===================================== */
+#listaAlunos-header {
+  position: sticky; top: 0; z-index: 1;
+}
+#listaAlunos { height: 300px; overflow-y: auto; }
+
+#listaAlunos .aluno-item      { transition: background .15s; }
+#listaAlunos .aluno-item:hover{ background:#f1f5ff; }
+
+#listaAlunos::-webkit-scrollbar{ width: .5rem; }
+#listaAlunos::-webkit-scrollbar-thumb{
+  background:#ced4da; border-radius:.5rem;
+}
+
+/* =====  Botões padrão  ======================================= */
+.btn-padrao { min-width:120px; font-weight:500; }
+
+/* degradê azul em QUALQUER elemento que tenha bg-secondary */
+.bg-secondary {
+  background: linear-gradient(90deg,#0d6efd 0%,#4e7cf4 100%) !important;
+  color:#fff !important;
+}
+

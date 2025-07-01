@@ -76,7 +76,7 @@ if (empty($projetos) && $projSel) {
               <div class="col-12 col-lg-4">
                 <label class="form-label">Status *</label>
                 <select name="status" class="form-select" required>
-                  <?php foreach (['Pendente','Entregue','Atrasado','Finalizado'] as $st): ?>
+                  <?php foreach (['Pendente','Atrasado','Finalizado'] as $st): ?>
                     <option <?= setValor('status','Pendente')==$st?'selected':'' ?>><?= $st ?></option>
                   <?php endforeach; ?>
                 </select>

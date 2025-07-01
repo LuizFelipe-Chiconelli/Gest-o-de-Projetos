@@ -5,6 +5,7 @@ $projetos = $projetos  ?? ($dados['projetos']  ?? []);
 $reunioes = $reunioes  ?? ($dados['reunioes']  ?? []);
 ?>
 
+
 <div class="container my-4">
 
   <!-- ╔════════════════════ PROJETOS ════════════════════╗ -->
@@ -17,7 +18,6 @@ $reunioes = $reunioes  ?? ($dados['reunioes']  ?? []);
       <table class="table table-striped align-middle mb-0">
         <thead class="table-light">
           <tr>
-            <th style="width:60px">ID</th>
             <th>Título</th>
             <th>Área</th>
             <th>Status</th>
@@ -28,7 +28,6 @@ $reunioes = $reunioes  ?? ($dados['reunioes']  ?? []);
         <tbody>
         <?php foreach ($projetos as $p): ?>
           <tr>
-            <td><?= $p['id'] ?></td>
             <td><?= $p['titulo'] ?></td>
             <td><?= $p['area'] ?></td>
             <td><?= $p['status'] ?></td>

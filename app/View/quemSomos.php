@@ -82,7 +82,7 @@
         <div class="col-md-6 order-md-2">
           <h3 class="fw-bold text-primary mb-3">Nossa jornada</h3>
           <p>
-            Tudo começou como um projeto de <strong>TCC</strong> dentro da Faculdade Santa Marcelina —
+            Tudo começou como um projeto dentro da Faculdade Santa Marcelina —
             hoje evoluiu para uma plataforma completa, capaz de acompanhar centenas de projetos por semestre.
           </p>
           <p>

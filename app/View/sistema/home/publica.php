@@ -7,14 +7,14 @@
       <h1 class="display-5 fw-bold mb-3">Gerencie seus projetos com agilidade</h1>
       <p class="lead mx-auto mb-4" style="max-width:640px;">
         Cadastre equipes, acompanhe entregas e mantenha todas as informações do seu
-        TCC em um único lugar — de graça!
+        projeto em um único lugar — de graça!
       </p>
 
       <!-- CTAs -->
       <div class="d-flex gap-3 justify-content-center flex-wrap">
         <a href="<?= baseUrl() ?>login" class="btn btn-primary btn-lg shadow">Entrar / Acessar</a>
         <a href="<?= baseUrl() ?>login/cadastro" class="btn btn-outline-light btn-lg shadow-sm">Criar conta</a>
-      </div>
+      </div>  
     </div>
   </section>
 
